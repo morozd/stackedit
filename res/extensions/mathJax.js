@@ -2,8 +2,9 @@ define([
     "utils",
     "classes/Extension",
     "text!html/mathJaxSettingsBlock.html",
+    "text!libs/mathjax_config.js",
     "mathjax",
-], function(utils, Extension, mathJaxSettingsBlockHTML) {
+], function(utils, Extension, mathJaxSettingsBlockHTML, mathjaxConfigJS) {
 	
 	var mathJax = new Extension("mathJax", "MathJax", true);
 	mathJax.settingsBlock = mathJaxSettingsBlockHTML;
@@ -21,48 +22,9 @@ define([
         newConfig.tex = utils.getInputJsValue("#input-mathjax-config-tex", event);
         newConfig.tex2jax = utils.getInputJsValue("#input-mathjax-config-tex2jax", event);
     };
-	
-    mathJax.onReady = function() {
-        eval("var tex = " + mathJax.config.tex);
-        eval("var tex2jax = " + mathJax.config.tex2jax);
-        MathJax.Hub.Config({
-            "HTML-CSS": {
-                preferredFont: "TeX",
-                availableFonts: [
-                    "STIX",
-                    "TeX"
-                ],
-                linebreaks: {
-                    automatic: true
-                },
-                EqnChunk: 10,
-                imageFont: null
-            },
-            tex2jax: tex2jax,
-            TeX: $.extend({
-                noUndefined: {
-                    attributes: {
-                        mathcolor: "red",
-                        mathbackground: "#FFEEEE",
-                        mathsize: "90%"
-                    }
-                },
-                Safe: {
-                    allow: {
-                        URLs: "safe",
-                        classes: "safe",
-                        cssIDs: "safe",
-                        styles: "safe",
-                        fontsize: "all"
-                    }
-                }
-            }, tex),
-            messageStyle: "none"
-        });
-    };
-		
-    mathJax.onEditorConfigure = function(editorObject) {
-        preview = document.getElementById("preview-contents");
+    
+    mathJax.onPagedownConfigure = function(editorObject) {
+        t = document.getElementById("preview-contents");
 
         var converter = editorObject.getConverter();
         converter.hooks.chain("preConversion", p);
@@ -122,7 +84,7 @@ define([
         h.Queue(afterRefreshCallback);
     }
     function j() {
-        !q && g && (q = !0, h.Cancel(), h.Queue(e))
+        !q && /*benweet (we need to call our afterRefreshCallback) g &&*/ (q = !0, h.Cancel(), h.Queue(e))
     }
     var g = !1, q = !1, t = null, s = "$", k, i, o, l, n, m, h = MathJax.Hub;
     h.Queue(function() {

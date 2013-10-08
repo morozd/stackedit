@@ -39,7 +39,7 @@ define([
                 return true;
             }
         });
-
+        
         // Find modified section starting from bottom
         var rightIndex = -sectionList.length;
         _.some(sectionList.slice().reverse(), function(section, index) {
@@ -48,6 +48,11 @@ define([
                 return true;
             }
         });
+        
+        if(leftIndex - rightIndex > sectionList.length) {
+            // Prevent overlap
+            rightIndex = leftIndex - sectionList.length;
+        }
 
         // Create an array composed of left unmodified, modified, right
         // unmodified sections
@@ -63,7 +68,7 @@ define([
     partialRendering.onSectionsCreated = function(sectionListParam) {
 
         var newSectionList = [];
-        var newLinkDefinition = "";
+        var newLinkDefinition = '\n';
         hasFootnotes = false;
         _.each(sectionListParam, function(text) {
             text += "\n\n";
@@ -73,7 +78,7 @@ define([
                 text = text.replace(/^```.*\n[\s\S]*?\n```|\n[ ]{0,3}\[\^(.+?)\]\:[ \t]*\n?([\s\S]*?)\n{1,2}((?=\n[ ]{0,3}\S)|$)/g, function(wholeMatch, footnote) {
                     if(footnote) {
                         hasFootnotes = true;
-                        newLinkDefinition += wholeMatch;
+                        newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
                         return "";
                     }
                     return wholeMatch;
@@ -83,7 +88,7 @@ define([
             // Strip link definitions
             text = text.replace(/^```.*\n[\s\S]*?\n```|^[ ]{0,3}\[(.+)\]:[ \t]*\n?[ \t]*<?(\S+?)>?(?=\s|$)[ \t]*\n?[ \t]*((\n*)["(](.+?)[")][ \t]*)?(?:\n+)/gm, function(wholeMatch, link) {
                 if(link) {
-                    newLinkDefinition += wholeMatch;
+                    newLinkDefinition += wholeMatch.replace(/^\s*\n/gm, '') + '\n';
                     return "";
                 }
                 return wholeMatch;
@@ -94,7 +99,7 @@ define([
                 // Add section to the newSectionList
                 newSectionList.push({
                     id: ++sectionCounter,
-                    text: text
+                    text: text + '\n'
                 });
             }
         });
@@ -122,7 +127,7 @@ define([
                 class: 'wmd-preview-section preview-content'
             });
             var isFirst = true;
-            while(childNode) {
+            while (childNode) {
                 var nextNode = childNode.nextSibling;
                 if(isFirst === false && /(^| )wmd-title($| )/.test(childNode.className)) {
                     // Stop when encountered the next wmd-title
@@ -140,7 +145,7 @@ define([
                     sectionElt.appendChild(childNode);
                 }
                 childNode = nextNode;
-            };
+            }
             newSectionEltList.appendChild(sectionElt);
         });
         wmdPreviewElt.innerHTML = '';
@@ -172,7 +177,7 @@ define([
         }
     }
 
-    partialRendering.onEditorConfigure = function(editor) {
+    partialRendering.onPagedownConfigure = function(editor) {
         converter = editor.getConverter();
         converter.hooks.chain("preConversion", function(text) {
             var result = _.map(modifiedSections, function(section) {
@@ -186,6 +191,12 @@ define([
         });
     };
 
+    partialRendering.onExtraExtensions = function(extraExtensions) {
+        doFootnotes = _.some(extraExtensions, function(extension) {
+            return extension == "footnotes";
+        });
+    };
+    
     partialRendering.onReady = function() {
         footnoteContainerElt = crel('div', {
             id: 'wmd-preview-section-footnotes',
@@ -197,14 +208,6 @@ define([
 
     partialRendering.onFileSelected = function() {
         fileChanged = true;
-    };
-
-    partialRendering.onFileOpen = function() {
-        if(converter.extraExtensions) {
-            doFootnotes = _.some(converter.extraExtensions, function(extension) {
-                return extension == "footnotes";
-            });
-        }
     };
 
     return partialRendering;

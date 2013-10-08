@@ -6,8 +6,9 @@ define([
     "classes/Extension",
     "settings",
     "text!html/settingsExtensionsAccordion.html",
+//    "extensions/yamlFrontMatterParser",
+    "extensions/markdownSectionParser",
     "extensions/partialRendering",
-    "extensions/userCustom",
     "extensions/buttonMarkdownSyntax",
     "extensions/googleAnalytics",
     "extensions/dialogAbout",
@@ -25,6 +26,7 @@ define([
     "extensions/mathJax",
     "extensions/emailConverter",
     "extensions/scrollLink",
+    "extensions/buttonFocusMode",
     "extensions/buttonSync",
     "extensions/buttonPublish",
     "extensions/buttonShare",
@@ -32,6 +34,7 @@ define([
     "extensions/buttonHtmlCode",
     "extensions/buttonViewer",
     "extensions/welcomeTour",
+    "extensions/userCustom",
     "bootstrap",
     "jquery-waitforimages"
 ], function($, _, crel, utils, Extension, settings, settingsExtensionsAccordionHTML) {
@@ -52,6 +55,10 @@ define([
         if(viewerMode === true && extension.disableInViewer === true) {
             // Skip enabling the extension if we are in the viewer and extension
             // doesn't support it
+            extension.enabled = false;
+        }
+        else if(lightMode === true && extension.disableInLight === true) {
+            // Same for light mode
             extension.enabled = false;
         }
         else {
@@ -131,8 +138,8 @@ define([
     addEventHook("onError");
     addEventHook("onOfflineChanged");
     addEventHook("onUserActive");
-    addEventHook("onAsyncRunning", true);
-    addEventHook("onPeriodicRun", true);
+    addEventHook("onAsyncRunning");
+    addEventHook("onPeriodicRun");
 
     // To access modules that are loaded after extensions
     addEventHook("onFileMgrCreated");
@@ -168,24 +175,26 @@ define([
     // Operations on Layout
     addEventHook("onLayoutConfigure");
     addEventHook("onLayoutCreated");
+    addEventHook("onLayoutResize");
 
     // Operations on PageDown
-    addEventHook("onEditorConfigure");
+    addEventHook("onPagedownConfigure");
     addEventHook("onSectionsCreated");
+    addEventHook("onMarkdownTrim");
+    addEventHook("onExtraExtensions");
+    
+    // Operation on ACE
+    addEventHook("onAceCreated");
 
     var onPreviewFinished = createEventHook("onPreviewFinished");
     var onAsyncPreviewListenerList = getExtensionListenerList("onAsyncPreview");
-    // The number of times we expect tryFinished to be called
-    var nbAsyncPreviewListener = onAsyncPreviewListenerList.length + 1;
     var previewContentsElt = undefined;
     var $previewContentsElt = undefined;
     eventMgr["onAsyncPreview"] = function() {
         logger.log("onAsyncPreview");
         logger.log("Conversion time: " + (new Date() - eventMgr.previewStartTime));
-        // Call onPreviewFinished listeners when all async preview are finished
-        var counter = 0;
-        function tryFinished() {
-            if(++counter === nbAsyncPreviewListener) {
+        function recursiveCall(callbackList) {
+            var callback = callbackList.length ? callbackList.shift() : function() {
                 logger.log("Preview time: " + (new Date() - eventMgr.previewStartTime));
                 _.defer(function() {
                     var html = "";
@@ -194,13 +203,15 @@ define([
                     });
                     onPreviewFinished(utils.trim(html));
                 });
-            }
+            };
+            callback(function() {
+                recursiveCall(callbackList);
+            });
         }
-        // We assume images are loading in the preview
-        $previewContentsElt.waitForImages(tryFinished);
-        _.each(onAsyncPreviewListenerList, function(asyncPreviewListener) {
-            asyncPreviewListener(tryFinished);
-        });
+        recursiveCall(onAsyncPreviewListenerList.concat([function(callback) {
+            // We assume some images are loading asynchronously after the preview
+            $previewContentsElt.waitForImages(callback);
+        }]));
     };
 
     var onReady = createEventHook("onReady");
@@ -246,29 +257,38 @@ define([
             });
             document.getElementById('extension-buttons').appendChild(extensionButtonsFragment);
 
-            // Create extension preview buttons
-            logger.log("onCreatePreviewButton");
-            var onCreatePreviewButtonListenerList = getExtensionListenerList("onCreatePreviewButton");
-            var extensionPreviewButtonsFragment = document.createDocumentFragment();
-            _.each(onCreatePreviewButtonListenerList, function(listener) {
-                extensionPreviewButtonsFragment.appendChild(createBtn(listener));
+            // Create extension editor buttons
+            logger.log("onCreateEditorButton");
+            var onCreateEditorButtonListenerList = getExtensionListenerList("onCreateEditorButton");
+            var extensionEditorButtonsFragment = document.createDocumentFragment();
+            _.each(onCreateEditorButtonListenerList, function(listener) {
+                extensionEditorButtonsFragment.appendChild(createBtn(listener));
             });
-            var previewButtonsElt = document.querySelector('.extension-preview-buttons');
-            previewButtonsElt.appendChild(extensionPreviewButtonsFragment);
-
-            // A bit of jQuery...
-            var $previewButtonsElt = $(previewButtonsElt);
-            var previewButtonsWidth = $previewButtonsElt.width();
-            $previewButtonsElt.find('.btn-group').each(function() {
-                var $btnGroupElt = $(this);
-                // Align dropdown to the left of the screen
-                $btnGroupElt.find('.dropdown-menu').css({
-                    right: -previewButtonsWidth + $btnGroupElt.width() + $btnGroupElt.position().left
-                });
-            });
-
+            var editorButtonsElt = document.querySelector('.extension-editor-buttons');
+            editorButtonsElt.appendChild(extensionEditorButtonsFragment);
         }
 
+        // Create extension preview buttons
+        logger.log("onCreatePreviewButton");
+        var onCreatePreviewButtonListenerList = getExtensionListenerList("onCreatePreviewButton");
+        var extensionPreviewButtonsFragment = document.createDocumentFragment();
+        _.each(onCreatePreviewButtonListenerList, function(listener) {
+            extensionPreviewButtonsFragment.appendChild(createBtn(listener));
+        });
+        var previewButtonsElt = document.querySelector('.extension-preview-buttons');
+        previewButtonsElt.appendChild(extensionPreviewButtonsFragment);
+
+        // A bit of jQuery...
+        var $previewButtonsElt = $(previewButtonsElt);
+        var previewButtonsWidth = $previewButtonsElt.width();
+        $previewButtonsElt.find('.btn-group').each(function() {
+            var $btnGroupElt = $(this);
+            // Align dropdown to the left of the screen
+            $btnGroupElt.find('.dropdown-menu').css({
+                right: -previewButtonsWidth + $btnGroupElt.width() + $btnGroupElt.position().left
+            });
+        });
+        
         // Call onReady listeners
         onReady();
     };

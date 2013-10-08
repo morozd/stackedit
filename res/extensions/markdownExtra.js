@@ -4,7 +4,7 @@ define([
     "utils",
     "classes/Extension",
     "text!html/markdownExtraSettingsBlock.html",
-    "libs/Markdown.Extra",
+    'pagedown-extra',
 ], function($, _, utils, Extension, markdownExtraSettingsBlockHTML) {
 
     var markdownExtra = new Extension("markdownExtra", "Markdown Extra", true);
@@ -44,7 +44,12 @@ define([
         newConfig.highlighter = utils.getInputValue("#input-markdownextra-highlighter");
     };
 
-    markdownExtra.onEditorConfigure = function(editor) {
+    var eventMgr = undefined;
+    markdownExtra.onEventMgrCreated = function(eventMgrParameter) {
+        eventMgr = eventMgrParameter;
+    };
+
+    markdownExtra.onPagedownConfigure = function(editor) {
         var converter = editor.getConverter();
         var options = {
             extensions: markdownExtra.config.extensions
@@ -64,8 +69,8 @@ define([
         }
         Markdown.Extra.init(converter, options);
 
-        // Store extensions list in converter for partialRendering
-        converter.extraExtensions = markdownExtra.config.extensions;
+        // Send extensions list to other extensions
+        eventMgr.onExtraExtensions(markdownExtra.config.extensions);
     };
 
     return markdownExtra;

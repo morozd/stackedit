@@ -39,7 +39,7 @@
 		</ul>
 	</div>
 </div>
-<textarea id="wmd-input" class="ui-layout-center form-control"></textarea>
+<div id="wmd-input" class="ui-layout-center"></div>
 <div class="ui-layout-east preview-container"></div>
 <div class="ui-layout-south preview-container"></div>
 <div id="wmd-button-bar" class="hide"></div>
@@ -79,6 +79,7 @@
 					<li><a class="action-download-html" href="#">Save as HTML</a></li>
 					<li><a class="action-download-template" href="#">Save
 							using template</a></li>
+					<li><a class="action-download-pdf" href="#">Save as PDF</a></li>
 				</ul>
 			</div>
 		</div>
@@ -941,7 +942,17 @@
 									<input type="text" id="input-settings-editor-font-family"
 										class="form-control col-lg-7"> <input type="text"
 										id="input-settings-editor-font-size"
-										class="form-control col-lg-2"> px
+										class="form-control col-lg-2"> px <span
+										class="help-block"> Only monospaced fonts are
+										supported.</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-lg-4 control-label"
+									for="input-settings-max-width">Max width</label>
+								<div class="col-lg-8 form-inline">
+									<input type="text" id="input-settings-max-width"
+										class="form-control col-lg-3"> px
 								</div>
 							</div>
 							<div class="form-group">
@@ -973,6 +984,16 @@
 								</label>
 								<div class="col-lg-7">
 									<textarea id="textarea-settings-publish-template"
+										class="form-control"></textarea>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-lg-4 control-label"
+									for="textarea-settings-publish-pdf-template">PDF
+									template <a href="#" class="tooltip-template">(?)</a>
+								</label>
+								<div class="col-lg-7">
+									<textarea id="textarea-settings-publish-pdf-template"
 										class="form-control"></textarea>
 								</div>
 							</div>
@@ -1024,9 +1045,9 @@
 
 			</div>
 			<div class="modal-footer">
-				<a href="#" class="btn btn-default"
-					data-dismiss="modal">Cancel</a> <a href="#"
-					class="btn btn-primary action-apply-settings" data-dismiss="modal">OK</a>
+				<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+				<a href="#" class="btn btn-primary action-apply-settings"
+					data-dismiss="modal">OK</a>
 			</div>
 		</div>
 	</div>
@@ -1076,6 +1097,5 @@
 </div>
 
 
-<textarea id="md-section-helper" class="form-control"></textarea>
 <div class="lock-ui hide"></div>
 <div id="dropboxjs" data-app-key="x0k2l8puemfvg0o"></div>

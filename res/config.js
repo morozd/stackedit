@@ -1,4 +1,4 @@
-var VERSION = "2.0.3";
+var VERSION = "2.1.7";
 
 var MAIN_URL = "http://benweet.github.io/stackedit/";
 var GOOGLE_ANALYTICS_ACCOUNT_ID = "UA-39556145-1";
@@ -16,6 +16,7 @@ var BITLY_ACCESS_TOKEN = "317e033bfd48cf31155a68a536b1860013b09c4c";
 var DEFAULT_FILE_TITLE = "Title";
 var DEFAULT_FOLDER_NAME = "New folder";
 var GDRIVE_DEFAULT_FILE_TITLE = "New Markdown document";
+var EDITOR_DEFAULT_PADDING = 15;
 var CHECK_ONLINE_PERIOD = 120000;
 var AJAX_TIMEOUT = 30000;
 var ASYNC_TASK_DEFAULT_TIMEOUT = 60000;
@@ -31,6 +32,7 @@ var PICASA_PROXY_URL = "http://stackedit-picasa-proxy.herokuapp.com/";
 var WORDPRESS_CLIENT_ID = '3185';
 var WORDPRESS_PROXY_URL = "http://stackedit-wordpress-proxy.herokuapp.com/";
 var SSH_PROXY_URL = "http://stackedit-ssh-proxy.herokuapp.com/";
+var HTMLTOPDF_URL = "http://benweet.insomnia247.nl/stackedit-htmltopdf/";
 
 // Use by Google's client.js
 var delayedFunction = undefined;
@@ -66,5 +68,6 @@ if(location.hostname.indexOf("benweet.insomnia247.nl") === 0) {
 var THEME_LIST = {
     "default": "Default",
     "blue-gray": "Blue-Gray",
-    "night": "Night"
+    "night": "Night",
+    "school": "School",
 };

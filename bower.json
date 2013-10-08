@@ -1,6 +1,6 @@
 {
   "name": "stackedit",
-  "version": "2.0.3",
+  "version": "2.1.7",
   "description": "StackEdit is a free, open-source Markdown editor based on PageDown, the Markdown library used by Stack Overflow and the other Stack Exchange sites.",
   "dependencies": {
     "bootstrap": "3.0.0",
@@ -14,11 +14,19 @@
     "google-code-prettify": "~1.0.0",
     "highlightjs": "~7.3.0",
     "jquery-ui": "~1.10.3",
-    "jquery-mousewheel": "~3.1.3",
-    "css_browser_selector": "*",
     "FileSaver": "*",
     "stacktrace": "~0.5.3",
     "requirejs-text": "~2.0.10",
-    "bootstrap-tour": "~0.6.0"
+    "bootstrap-tour": "~0.6.0",
+    "ace": "#51b7cb67a63998c9c0b7d089a85c60e032a7cc17",
+    "pagedown-ace": "git@github.com:benweet/pagedown-ace.git#master",
+    "pagedown-extra": "git@github.com:jmcmanus/pagedown-extra.git#e31cb17885ec5decc002d7fdf70535bde2e0ce0e",
+    "crel": "git@github.com:KoryNunn/crel.git#8dbda04b129fc0aec01a2a080d1cab26816e11c1",
+    "waitForImages": "git@github.com:alexanderdickson/waitForImages.git#~1.4.2",
+    "to-markdown": "git@github.com:benweet/to-markdown.git#jquery",
+    "js-yaml": "~2.1.0"
+  },
+  "resolutions": {
+    "jquery": "2.0.3"
   }
 }

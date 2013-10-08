@@ -1,4 +1,7 @@
 @import "../bower-libs/bootstrap/less/bootstrap.less";
+@import "../bower-libs/ace/lib/ace/css/editor.css";
+@import "../bower-libs/ace/lib/ace/ext/searchbox.css";
+@import "../bower-libs/ace/lib/ace/theme/textmate.css";
 @import "../bower-libs/google-code-prettify/src/prettify.css";
 @import "../bower-libs/highlightjs/styles/default.css";
 @import "../bower-libs/bootstrap-tour/src/less/bootstrap-tour.less";
@@ -16,6 +19,7 @@
 @primary-color: #333;
 @primary-color-light: lighten(@primary-color, 13%);
 @primary-color-lighter: lighten(@primary-color, 20%);
+@primary-color-lightest: lighten(@primary-color, 35%);
 @primary-color-inv: #fff;
 @bg-navbar-hover: @primary-bg-lighter;
 @error-border: #ff8661;
@@ -30,6 +34,7 @@
 @menu-panel-width: 280px;
 @document-panel-width: 350px;
 @jgrowl-width: 260px;
+@title-base-size: 14px;
 
 /* Bootstrap */
 @body-bg: @primary-bg-lighter;
@@ -43,6 +48,7 @@
 @nav-disabled-link-color: @disabled-color;
 @nav-disabled-link-hover-color: @disabled-color;
 @nav-tabs-border-color: @transparent;
+@nav-tabs-link-hover-border-color: @transparent; 
 @dropdown-link-color: @primary-color;
 @dropdown-link-hover-bg: @secondary-bg;
 @dropdown-link-active-color: @primary-color-inv;
@@ -62,7 +68,7 @@
 @btn-success-color: @primary-color-light;
 @btn-success-bg: @navbar-default-bg;
 @btn-success-border: @transparent;
-@btn-info-bg: @body-bg;
+@btn-info-bg: @transparent;
 @btn-info-border: @transparent;
 @gray-lighter: @body-bg;
 @modal-header-border-color: @primary-bg-light;
@@ -102,10 +108,13 @@ body {
 	tab-size: 4;
 }
 
+.ui-layout-east, .ui-layout-south {
+	background-color: @body-bg;
+}
+
 #preview-contents {
 	padding: 15px;
-	margin-bottom: 50px;
-	background-color: @body-bg;
+	margin: 0 auto 180px;
 	.ui-layout-east & {
 		padding-left: 5px;
 	}
@@ -277,6 +286,9 @@ body {
 			}
 		}
 	}
+	.btn {
+		height: @input-height-base;
+	}
 	.btn-group > .btn {
 		&.disabled,
 		&.blocked,
@@ -288,12 +300,14 @@ body {
 	}
 	
 	.file-title-navbar {
+		display: block;
 		padding: 4px 15px;
 		font-size: 20px;
 		font-weight: 200;
-		color: @primary-color-light;
-		max-width: 320px;
+		color: @btn-success-color;
+		max-width: 280px;
 		overflow: hidden;
+		white-space: nowrap;
 		i {
 			margin-right: 6px;
 		}
@@ -331,6 +345,9 @@ body {
 		color: @panel-button-color;
     	font-size: 14px;
 	}
+	&.in .collapse-button {
+       	background-color: @bg-navbar-hover;
+    }
 	.panel-content {
 		.box-shadow(0 6px 12px rgba(0,0,0,.175));
 		overflow: auto;
@@ -345,7 +362,7 @@ body {
 
 .menu-panel {
 	width: @menu-panel-width !important;
-	margin-left: (-@menu-panel-width - 35);
+	margin-left: (-@menu-panel-width - 23);
 	-webkit-transition: margin-left 0.35s ease;
 	-moz-transition: margin-left 0.35s ease;
 	-o-transition: margin-left 0.35s ease;
@@ -356,15 +373,22 @@ body {
 	&.in {
         margin-left: 0;
         .collapse-button {
-        	background-color: @panel-bg;
+            padding-right: 16px;
         }
     }
     .collapse-button {
-	    right: -83px;
+	    right: -75px;
 		position: absolute;
 		margin-top: 6px;
-		padding: 2px 20px;
 		z-index: -1;
+		padding: 2px 24px 2px 16px;
+    	-webkit-transition: padding-right 0.35s ease;
+        -moz-transition: padding-right 0.35s ease;
+        -o-transition: padding-right 0.35s ease;
+        transition: padding-right 0.35s ease;
+        &:hover {
+            padding-right: 16px;
+        }
 	}
 	.panel-content {
 		background-color: @panel-bg;
@@ -376,7 +400,7 @@ body {
 .document-panel {
 	right: 0;
 	width: @document-panel-width !important;
-	margin-right: (-@document-panel-width - 35);
+	margin-right: (-@document-panel-width - 27);
 	-webkit-transition: margin-right 0.35s ease;
     -moz-transition: margin-right 0.35s ease;
     -o-transition: margin-right 0.35s ease;
@@ -384,15 +408,22 @@ body {
 	&.in {
         margin-right: 0;
         .collapse-button {
-        	background-color: @panel-bg;
+            padding-left: 10px;
         }
     }
     .collapse-button {
-	    left: -83px;
+	    left: -75px;
 		position: absolute;
 		margin-top: 6px;
-		padding: 7px 18px;
+		padding: 7px 10px 7px 18px;
 		z-index: -1;
+    	-webkit-transition: padding-left 0.35s ease;
+        -moz-transition: padding-left 0.35s ease;
+        -o-transition: padding-left 0.35s ease;
+        transition: padding-left 0.35s ease;
+        &:hover {
+            padding-left: 10px;
+        }
 		i.icon-folder-open {
        		font-size: 22px;
        	}
@@ -557,15 +588,15 @@ body {
 
 
 /********************
- * Preview extensions buttons
+ * Preview/Editor extensions buttons
  ********************/
- 
+
 .extension-preview-buttons {
     position: absolute;
+	z-index: 1;
+    margin-top: 6px;
     right: 30px;
-    z-index: 1;
-    top: 6px;
-    .ui-layout-resizer-south-closed > & {
+    .ui-layout-resizer-south-closed & {
     	display: none !important;
     }
 	.dropdown-menu {
@@ -576,11 +607,12 @@ body {
 		margin: 0 0 0 1px;
 		.btn {
 			position: initial;
+			background-color: fade(@primary-bg, 33%);
 		}
 		&.open .btn{
 			background-color: @primary-bg-light;
 			i {
-				color: @btn-success-color
+				color: @primary-color-light
 			}
 		}
 	}
@@ -612,7 +644,26 @@ body {
 	}
 }
 
+.extension-editor-buttons {
+	position: absolute;
+	display: inline-block;
+	vertical-align: top;
+	.btn {
+		background-color: fade(@primary-bg, 33%);
+		text-align: center;
+		height: 35px;
+		width: 35px;
+		padding: 0;
+	}
+	.ui-layout-resizer-east & {
+		bottom: 0;
+	}
+	.ui-layout-resizer-south & {
+		right: 0;
+	}
+}
 
+ 
 /**************************
  * Settings dialog
  **************************/
@@ -730,24 +781,22 @@ body {
 	overflow: visible !important;
     font-size: 14px !important;
 	.btn {
-		background-color: fade(@navbar-default-bg, 50%);
 		float: none;
 		i {
-			color: fade(@btn-success-color, 30%);
+			color: fade(@primary-color-light, 30%);
 		}
 		&:hover,
 		&:focus,
 		&:active,
 		&.active {
-			background-color: fade(@navbar-default-bg, 50%);
+			background-color: mix(@primary-bg-lighter, @primary-bg, 50%);
 			i {
-				color: @btn-success-color
+				color: @primary-color-light
 			}
 		}
 	}
 	.ui-layout-toggler {
 		font-size: 22px !important;
-		background-color: transparent;
 		&.ui-layout-toggler-east {
 			line-height: 55px;
 			&.ui-layout-toggler-east-open i:before {
@@ -797,6 +846,13 @@ a code {
 	color: inherit;
 }
 
+h1 { font-size: floor(@title-base-size * 2.60); }
+h2 { font-size: floor(@title-base-size * 2.15); }
+h3 { font-size: ceil(@title-base-size * 1.70); }
+h4 { font-size: ceil(@title-base-size * 1.25); }
+h5 { font-size:  @title-base-size; }
+h6 { font-size: ceil(@title-base-size * 0.85); }
+
 h1 {
 	margin: 40px 0;
 }
@@ -811,10 +867,6 @@ h3 {
 
 h4, h5, h6 {
 	margin: 15px 0;
-}
-
-.toc ul {
-	list-style-type: none;
 }
 
 p,
@@ -886,8 +938,8 @@ blockquote {
 	border-left-width: 10px;
 	p {
 	    margin-bottom: 15px;
-	    font-size: 14px;
-	    line-height: 20px;
+	    font-size: @font-size-base;
+	    line-height: @line-height-base;
 	}
 	
 	ul:last-child,
@@ -898,52 +950,96 @@ blockquote {
 
 ul,ol {
 	margin-bottom: 15px;
+	ul,ol {
+		margin-bottom: 15px;
+	}
+}
+
+.toc ul {
+	list-style-type: none;
+	margin-bottom: 5px;
 }
 
 /*****************************
  * Editor
  *****************************/
  
-#wmd-input {
-	.box-shadow(none);
+.ace_editor {
+	color: @primary-color-light;
 }
 
-#wmd-input,#md-section-helper {
+.ace-tm {
+	background-color: @input-bg;
+	
+	.ace_text-input {
+		box-sizing: initial;
+	}
+
+	.ace_marker-layer .ace_active-line {
+		background-color: @primary-bg-lighter;	
+	}
+	
+	.ace_print-margin {
+		background-color: fade(@primary-bg-lighter, 50%);
+	}
+	
+	.ace_markup.ace_heading {
+		color: @primary-color;
+		font-weight: bold;
+	}
+	
+	.ace_markup.ace_list {
+		color: @primary-color-lightest;
+	}
+	
+	.ace_strong {
+		font-weight: bold;
+	}
+	
+	.ace_emphasis {
+		color: @primary-color;
+		font-style: italic;
+	}
+	
+	.ace_blockquote {
+		color: @primary-color-lightest;
+		font-style: italic;
+	}
+	
+	.ace_code {
+		font-family: Menlo, Consolas, "Courier New", monospace;
+		color: @primary-color-lighter;
+		background-color: fade(@secondary-bg, 10%);
+	}
+	
+	.ace_code_block {
+		font-family: Menlo, Consolas, "Courier New", monospace;
+		color: @primary-color;
+	}
+	
+	.ace_description {
+		color: @primary-color-lighter;
+	}
+}
+
+.ace_search {
+	background-color: @primary-bg;
+	border: 0;
+}
+
+#wmd-input {
+	border-radius: @input-border-radius;
+	color: @primary-color-light;
+	.box-shadow(none);
 	resize: none;
 	border: none !important;
-}
-
-#md-section-helper {
-	position: absolute;
-	top: -100px;
-	height: 1px;
-	padding: 0 6px;
-	overflow-y: scroll;
-	z-index: -1;
-	.gecko & {
-		/* Firefox doesn't show the scrollbar if height is less than 40px */
-		height: 40px;
-	}	
-	.opera & {
-		/* Opera needs to have the textarea in the viewport to evaluate its size correctly */
-		top: 0;
+	div& {
+		padding: 0;
 	}
 }
 
 .preview-container {
 	overflow: auto;
-}
-
-.wmd-button-row {
-	padding: 0;
-}
-
-.wmd-spacer {
-	display: none;
-}
-
-.wmd-spacer + .wmd-button {
-	margin-left: 20px;
 }
 
 .wmd-prompt-background {
@@ -1071,6 +1167,10 @@ div.dropdown-menu textarea {
 	z-index: 1050 !important;
 }
 
+.picker-dialog-bg {
+	z-index: 1040 !important;
+}
+
 .action-import-image-gplus {
 	float: left;
 }
@@ -1112,7 +1212,7 @@ input[type="file"] {
  *********************/
 
 .popover {
-	max-width: 360px;
+	max-width: 350px;
 	padding: 15px;
 	.box-shadow(0 5px 30px rgba(0,0,0,.4));
 	.popover-title {
@@ -1153,19 +1253,30 @@ div.jGrowl {
  *******************/
  
 .viewer {
-	.file-title-navbar {
-		line-height: @input-height-base;
-	}
-	
-	#preview-contents {
-		max-width: 1024px;
-		margin: 0 auto;
-	}
-		
 	.document-panel .search-bar {
 		padding: 20px 20px 10px;
 		.input-group-btn {
 			display: none;
 		}
+	}
+	
+	.ui-layout-toggler {
+		display: none !important;
+	}
+	
+	.navbar .file-title-navbar {
+	    max-width: 500px;
+	}
+}
+
+/*******************
+ * PDF
+ *******************/
+body.pdf {
+	font-family: "DejaVu Sans";
+	background-color: transparent;
+	
+	& code, & pre {
+	    font-family: "DejaVu Sans Mono";
 	}
 }
