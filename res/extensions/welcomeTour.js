@@ -34,7 +34,7 @@ define([
         tour.addSteps([
             {
                 element: ".navbar-inner",
-                title: "Welcome to StackEdit 2.0",
+                title: "Welcome to StackEdit",
                 content: "Please click <code>Next</code> to take a quick tour.",
                 placement: "bottom",
             },

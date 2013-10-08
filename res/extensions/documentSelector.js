@@ -29,6 +29,11 @@ define([
         newConfig.shortcutNext = utils.getInputTextValue("#input-document-selector-shortcut-next", event);
     };
 
+    var aceEditor = undefined;
+    documentSelector.onAceCreated = function(aceEditorParam) {
+        aceEditor = aceEditorParam;
+    };
+
     var fileMgr = undefined;
     documentSelector.onFileMgrCreated = function(fileMgrParameter) {
         fileMgr = fileMgrParameter;
@@ -41,13 +46,13 @@ define([
         '   </a>',
         '</li>'
     ].join('');
-    var $editorElt = undefined;
     var dropdownElt = undefined;
     var liEltMap = undefined;
     var liEltList = undefined;
     var sortFunction = undefined;
     var selectFileDesc = undefined;
     var selectedLi = undefined;
+    var $editorElt = undefined;
     var buildSelector = function() {
         var liListHtml = _.chain(fileSystem).sortBy(sortFunction).reduce(function(result, fileDesc) {
             return result + _.template(liEltTmpl, {
@@ -68,6 +73,9 @@ define([
                 selectedLi = undefined;
                 if(!$liElt.hasClass("disabled")) {
                     fileMgr.selectFile(fileDesc);
+                }
+                else if(aceEditor !== undefined) {
+                    aceEditor.focus();
                 }
                 else {
                     $editorElt.focus();
@@ -91,8 +99,8 @@ define([
     documentSelector.onPublishRemoved = buildSelector;
 
     documentSelector.onReady = function() {
-        $editorElt = $("#wmd-input");
-
+        $editorElt = $('#wmd-input');
+        
         if(documentSelector.config.orderBy == "title") {
             sortFunction = function(fileDesc) {
                 return fileDesc.title.toLowerCase();

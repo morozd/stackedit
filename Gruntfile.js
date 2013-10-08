@@ -21,6 +21,7 @@ module.exports = function(grunt) {
                     out: "res-min/main.js",
                     mainConfigFile: 'res/main.js',
                     optimize: "uglify2",
+                    inlineText: true,
                     uglify2: {
                         output: {
                             beautify: true,
@@ -76,6 +77,19 @@ module.exports = function(grunt) {
                         {
                             pattern: /@import /g,
                             replacement: '@import (less) '
+                        },
+                    ]
+                }
+            },
+            'font-parameters': {
+                files: {
+                    './': 'res-min/themes/*.css',
+                },
+                options: {
+                    replacements: [
+                        {
+                            pattern: /(font\/fontello\.\w+)\?\w+/g,
+                            replacement: '$1'
                         }
                     ]
                 }
@@ -115,6 +129,14 @@ module.exports = function(grunt) {
             resources: {
                 files: [
                     // Fonts
+                    {
+                        expand: true,
+                        cwd: 'res/font',
+                        src: [
+                            '**'
+                        ],
+                        dest: 'res-min/font/'
+                    },
                     {
                         expand: true,
                         cwd: 'res/libs/fontello/font',
@@ -159,7 +181,9 @@ module.exports = function(grunt) {
                 updateConfigs: [
                     'pkg'
                 ],
-                commitFiles: ['-a'],
+                commitFiles: [
+                    '-a'
+                ],
                 pushTo: 'origin'
             }
         },
@@ -209,6 +233,8 @@ module.exports = function(grunt) {
         grunt.task.run('string-replace:css-import');
         // Run less another time with CSS evaluation and compression
         grunt.task.run('less:compress');
+        // Remove fontello checksum arguments
+        grunt.task.run('string-replace:font-parameters');
 
     });
 

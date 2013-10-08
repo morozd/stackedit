@@ -150,9 +150,13 @@ define([
         });
     };
 
-    eventMgr.addListener("onReady", function() {
-        var $editorElt = $("#wmd-input");
+    var aceEditor = undefined;
+    eventMgr.addListener('onAceCreated', function(aceEditorParam) {
+        aceEditor = aceEditorParam;
+    });
 
+    eventMgr.addListener("onReady", function() {
+        $editorElt = $("#wmd-input")
         fileMgr.selectFile();
 
         var $fileTitleElt = $('.file-title-navbar');
@@ -160,10 +164,6 @@ define([
         $(".action-create-file").click(function() {
             var fileDesc = fileMgr.createFile();
             fileMgr.selectFile(fileDesc);
-            var wmdInput = $editorElt.focus().get(0);
-            if(wmdInput.setSelectionRange) {
-                wmdInput.setSelectionRange(0, 0);
-            }
             $fileTitleElt.click();
         });
         $(".action-remove-file").click(function() {
@@ -189,7 +189,7 @@ define([
                 eventMgr.onTitleChanged(fileDesc);
             }
             $fileTitleInputElt.val(fileDesc.title);
-            $editorElt.focus();
+            (aceEditor && aceEditor.focus()) || $editorElt.focus();
         }
         $fileTitleInputElt.blur(function() {
             applyTitle();
@@ -207,6 +207,9 @@ define([
         });
         $(".action-edit-document").click(function() {
             var content = $editorElt.val();
+            if(aceEditor !== undefined) {
+                content = aceEditor.getValue();
+            }
             var title = fileMgr.currentFile.title;
             var fileDesc = fileMgr.createFile(title, content);
             fileMgr.selectFile(fileDesc);
